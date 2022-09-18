@@ -3,26 +3,53 @@
 <PageTitle>Weather forecast</PageTitle>
 
 @using SOS.Data
-@inject FetchingStuff esAPI
+@inject Client esAPI
 
-<h1>Weather forecast</h1>
+<h1>Get Schedulable Classes for This Date and Mod</h1>
 
-<p>This component demonstrates fetching data from a service.</p>
+<p>This component demonstrates fetching and parsing es data from the enriching students servers</p>
 
-@if (forecasts == null)
+@if (!isComplete)
 {
-    <p><em>Loading...</em></p>
+    <select name="mods" @onchange="updateMod">
+        @for(int i = 0; i < ModSlot.slotList.Count; i++)
+        {
+            <option value="@i">@ModSlot.slotList[i].name</option>
+        }
+    </select>
+    <button @onclick="GetSchedulable">Get Mods</button>
 }
 else
 {
-    <p>@forecasts</p>
+    @foreach(Mod mod in modlist)
+        {
+            @if (mod.availiable)
+            {
+                <p>@mod.course.turnToString()</p>
+            }
+        }
 }
 
 @code {
-    private string forecasts;
+    public int mod = 10;
 
-    protected override async Task OnInitializedAsync()
+    public bool isComplete;
+
+    private List<Mod> modlist;
+
+    public async void GetSchedulable()
     {
-        forecasts = await esAPI.fetchSchedules();
+        modlist = esAPI.toSchedulableList(await new Client().fetchScheduleable(EnrichedDate.CreateEnrichedDateFromString("2022-09-19"), ModSlot.getMod(mod)), ModSlot.getMod(mod), EnrichedDate.CreateEnrichedDateFromString("2022-09-19"));
+        isComplete = true;
+        this.StateHasChanged();
+    }
+    
+
+    public void updateMod(ChangeEventArgs e)
+    {
+        if(e != null)
+        {
+            mod = int.Parse(e.Value.ToString()) + 1;
+        }
     }
 }

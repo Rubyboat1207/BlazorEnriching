@@ -22,7 +22,7 @@ public class Course
         this.description = "";
         this.name = "";
         this.facilitator_name = "";
-        this.period_id = null;
+        this.period_id = ModSlot.MOD1;
         this.id = -1;
 
     }
@@ -32,14 +32,14 @@ public class Course
 
         if(this.facilitator_name != "")
         {
-            return this.name + " in " + this.room + " for " + this.period_id.ToString() + " by " + this.facilitator_name;
+            return this.name + " in " + this.room + " for " + this.period_id.name + " by " + this.facilitator_name;
         }
         if(this.room != "None")
         {
-            return this.name + " in " + this.room + " for " + this.period_id.ToString();
+            return this.name + " in " + this.room + " for " + this.period_id.name;
         }
 
-        return this.name + " for " + this.period_id.ToString();
+        return this.name + " for " + this.period_id.name;
 
     }
 
