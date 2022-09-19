@@ -1,0 +1,57 @@
+﻿@page "/schedule"
+@using SOS.Data
+@inject Client esAPI
+<span>show Unavailiable</span>
+<label class="switch">
+  <input type="checkbox" @onchange=updateShowAvailability>
+  <span class="slider round"></span>
+</label>
+@if(mods != null)
+{
+    @foreach(Mod mod in mods)
+    {
+        @if(!showUnavailiable)
+        {
+            if(!mod.availiable)
+            {
+                continue;
+            }
+        }
+        <SchdulableClass Mod=@mod/>
+    }
+
+}
+else
+{
+    <p>loading...</p>
+}
+
+
+@code {
+    List<Mod> mods;
+    bool showUnavailiable;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DisplayClasses();
+    }
+
+    public void updateShowAvailability(ChangeEventArgs e)
+    {
+        if(e.Value != null)
+        {
+            showUnavailiable = (bool) e.Value;
+        }
+        DisplayClasses();
+    }
+
+    public async void DisplayClasses()
+    {
+        mods = null;
+        EnrichedDate date = EnrichedDate.CreateEnrichedDateFromString("2022-9-19");
+        ModSlot slot = ModSlot.FLEX_MOD2;
+        string json = await esAPI.fetchScheduleable(date, slot, Client.myToken);
+        mods = esAPI.toSchedulableList(json, slot, date);
+        this.StateHasChanged();
+    }
+}

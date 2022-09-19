@@ -1,0 +1,79 @@
+﻿<div class="container">
+    @if(Mod != null)
+    {
+        <div class="upperSection">
+        <div>
+            <h2 class="classTitle">
+                @Mod.course.name
+            </h2>
+            <h3 class="host">
+                @Mod.course.facilitator_name
+            </h3>
+            <h4 class="room">
+                @Mod.course.room
+            </h4>
+        </div>
+        <div>
+            <p>
+                @Mod.course.description
+            </p>
+        </div>
+    </div>
+    <div class="lowerSection">
+        <div>
+            <span>
+                @getScheduledCount()
+            </span>
+        </div>
+        @if(Mod.availiable)
+        {
+            <div>
+                <span>@getScheduleableMessage()</span>
+            </div>
+        }
+        else
+        {
+            <div>
+                <span>@getScheduleableMessage()</span>
+                <button>
+                    Notify Avaliability?
+                </button>
+            </div>
+        }
+    </div>
+    }
+</div>
+
+
+
+@code {
+    Mod? mod;
+    [Parameter]
+    public Mod Mod { get { return mod; } set {
+            if (value != null) {
+                mod = value;
+                this.StateHasChanged();
+            }
+        }}
+
+
+    public string getScheduledCount()
+    {
+        return Mod.appointments + " / " + Mod.seats;
+    }
+
+    public string getScheduleableMessage()
+    {
+        if(Mod.availiable)
+        {
+            return "Open for scheduling";
+        }
+        else if(Mod.seats == 0 || Mod.seats - Mod.appointments == 0)
+        {
+            return "No Seats Availiable";
+        }else
+        {
+            return "Mod Unavailiable";
+        }
+    }
+}

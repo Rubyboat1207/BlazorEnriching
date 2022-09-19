@@ -5,23 +5,24 @@
     using System.Text.RegularExpressions;
     public class Client
     {
-        public async Task<string> fetchSchedules(EnrichedDate date)
+        public static string myToken = "jcnwodh2:4;wueiosdzm:326;ksdfjlsnv:1271303;qdjHDnmxadf:sNk9JjOb2gjqTfPDsBB9TYZPCl8FwTyT0,XnFQ__;ofu82uicn:sNk9JjOb2gjXmj7tKuaAi983A0akKbes3oNZCA__;kosljsdnc:sNk9JjOb2ghyMLdkpw03EWZx3LmwoBE6XGCC1A__;^ydh)9xLkxx:sNk9JjOb2giqccPQoBXZnpqbMPiIGV8VO6ZZSg__";
+        public async Task<string> fetchSchedules(EnrichedDate date, string authtoken)
         {
             return await "https://student.enrichingstudents.com/v1.0/appointment/viewschedules"
             .WithHeader("accept", "application/json, text/plain, */*")
             .WithHeader("content-type", "application/json;charset=UTF-8")
-            .WithHeader("esauthtoken", "jcnwodh2:4;wueiosdzm:326;ksdfjlsnv:1271303;qdjHDnmxadf:sNk9JjOb2gjqTfPDsBB9TYZPCl8FwTyT0,XnFQ__;ofu82uicn:sNk9JjOb2gjXmj7tKuaAi983A0akKbes3oNZCA__;kosljsdnc:sNk9JjOb2ghyMLdkpw03EWZx3LmwoBE6XGCC1A__;^ydh)9xLkxx:sNk9JjOb2giqccPQoBXZnpqbMPiIGV8VO6ZZSg__")
+            .WithHeader("esauthtoken", authtoken)
             .PostStringAsync("{startDate: \"" + date.getDate() + "\"}")
             .ReceiveString();
         }
 
-        public async Task<string> fetchScheduleable(EnrichedDate date, ModSlot slot)
+        public async Task<string> fetchScheduleable(EnrichedDate date, ModSlot slot, string authtoken)
         {
             Console.WriteLine("{\"periodId\":" + slot.id + ",\"startDate\":\"" + date.getDate() + "\"}");
             return await "https://student.enrichingstudents.com/v1.0/course/forstudentscheduling"
             .WithHeader("accept", "application/json, text/plain, */*")
             .WithHeader("content-type", "application/json;charset=UTF-8")
-            .WithHeader("esauthtoken", "jcnwodh2:4;wueiosdzm:326;ksdfjlsnv:1271303;qdjHDnmxadf:sNk9JjOb2gjqTfPDsBB9TYZPCl8FwTyT0,XnFQ__;ofu82uicn:sNk9JjOb2gjXmj7tKuaAi983A0akKbes3oNZCA__;kosljsdnc:sNk9JjOb2ghyMLdkpw03EWZx3LmwoBE6XGCC1A__;^ydh)9xLkxx:sNk9JjOb2giqccPQoBXZnpqbMPiIGV8VO6ZZSg__")
+            .WithHeader("esauthtoken", authtoken)
             .PostStringAsync("{\"periodId\":" + slot.id + ",\"startDate\":\"" + date.getDate() + "\"}")
             .ReceiveString();
         }
@@ -54,13 +55,13 @@
             {
                 Course completedCourse = new Course();
                 bool availiable = true;
-                if (!course["isOpenForScheduling"].Value<bool>() || course["maxNumberStudents"].Value<int>() <= 0 || course["courseName"].ToString() == "This course does not allow for student self-scheduling")
+                completedCourse.name = course["courseName"].ToString();
+                if (!course["isOpenForScheduling"].Value<bool>() || course["maxNumberStudents"].Value<int>() <= 0 || completedCourse.name == "This course does not allow for student self-scheduling")
                 {
                     availiable = false;
                 }
-                completedCourse.name = course["courseName"].ToString();
                 var regex = Regex.Split(completedCourse.name, "[-:]");
-                if (regex.Length >= 2)
+                if (regex.Length >= 2 && completedCourse.name != "This course does not allow for student self-scheduling")
                 {
                     completedCourse.name = regex[1].Trim();
                 }
@@ -72,7 +73,8 @@
                 completedCourse.description = course["courseDescription"].ToString();
                 completedCourse.room = course["courseRoom"].ToString();
                 mods.Add(new Mod(completedCourse, 
-                    course["maxNumberStudents"].Value<int>(), 
+                    course["maxNumberStudents"].Value<int>(),
+                    course["numberOfAppointments"].Value<int>(),
                     date, 
                     availiable
                 ));

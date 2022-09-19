@@ -39,7 +39,7 @@ else
 
     public async void GetSchedulable()
     {
-        modlist = esAPI.toSchedulableList(await new Client().fetchScheduleable(EnrichedDate.CreateEnrichedDateFromString("2022-09-19"), ModSlot.getMod(mod)), ModSlot.getMod(mod), EnrichedDate.CreateEnrichedDateFromString("2022-09-19"));
+        modlist = esAPI.toSchedulableList(await new Client().fetchScheduleable(EnrichedDate.CreateEnrichedDateFromString("2022-09-19"), ModSlot.getMod(mod), Client.myToken), ModSlot.getMod(mod), EnrichedDate.CreateEnrichedDateFromString("2022-09-19"));
         isComplete = true;
         this.StateHasChanged();
     }
